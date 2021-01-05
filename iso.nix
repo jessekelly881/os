@@ -1,6 +1,11 @@
-{ config, pkgs, system, ... }:
+{ config, pkgs, system, lib, ... }:
 
 {
+  # Whitelist for non "free" software.
+  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+    "android-studio-stable"
+  ];
+
   imports = [ # Needed to build iso
     <nixpkgs/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix>
     <nixpkgs/nixos/modules/installer/cd-dvd/channel.nix>
@@ -9,12 +14,22 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   boot.tmpOnTmpfs = true;
-  programs.bash.enableCompletion = true;
-  networking.wireless.enable = true;
   time.timeZone = "America/Chicago";
   i18n.defaultLocale = "en_US.UTF-8";
-
   location.provider = "geoclue2";
+
+  networking = {
+    hostName = "deepblue";
+    wireless.enable = true;
+  };
+
+  programs = {
+    bash.enableCompletion = true;
+    tmux = {
+        enable = true;
+        newSession = true;
+    };
+  };
 
   users.users.jesse = {
       isNormalUser = true;
@@ -29,6 +44,21 @@
     pulseaudio.enable = true;
     bluetooth.enable = true;
   };
+
+  environment.systemPackages = with pkgs; [
+    # core tools
+    nodejs
+    git
+    vim
+    emacs
+    android-studio
+
+    # user tools
+    qutebrowser
+    firefox
+    mpv-with-scripts # https://nixos.wiki/wiki/MPV
+
+  ];
 
   services = {
     gnome3.gnome-keyring.enable = true;
@@ -47,14 +77,17 @@
       enable = true;
       autoRepeatDelay = 200;
       autoRepeatInterval = 25;
-      layout = "us";
-      displayManager.defaultSession = "none+xmonad";
-      displayManager.autoLogin.enable = true;
-      displayManager.autoLogin.user = "jesse";
       xkbOptions = "caps:swapescape";
-      windowManager.xmonad = {
+      layout = "us";
+      displayManager = {
+        defaultSession = "none+i3";
+        autoLogin.enable = true;
+        autoLogin.user = "jesse";
+        lightdm.enable = true;
+      };
+      windowManager.i3 = {
         enable = true;
-        enableContribAndExtras = true;
+        package = pkgs.i3-gaps;
       };
     };
     compton = {
