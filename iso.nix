@@ -14,14 +14,15 @@
   time.timeZone = "America/Chicago";
   i18n.defaultLocale = "en_US.UTF-8";
 
-  users.users = {
-    jesse = {
+  location.provider = "geoclue2";
+
+  users.users.jesse = {
       isNormalUser = true;
       home = "/home/jesse";
       description = "Jesse Kelly";
       extraGroups = [ "wheel" "networkmanager" ];
+      shell = pkgs.zsh;
     };
-  };
 
   hardware = {
     cpu.intel.updateMicrocode = true;
@@ -31,6 +32,8 @@
 
   services = {
     gnome3.gnome-keyring.enable = true;
+    thinkfan.enable = true;
+    locate.enable = true;
     fstrim.enable = true;
     openssh.enable = true;
     printing.enable = true;
@@ -48,6 +51,7 @@
       displayManager.defaultSession = "none+xmonad";
       displayManager.autoLogin.enable = true;
       displayManager.autoLogin.user = "jesse";
+      xkbOptions = "caps:swapescape";
       windowManager.xmonad = {
         enable = true;
         enableContribAndExtras = true;
@@ -58,6 +62,31 @@
       shadow = true;
       inactiveOpacity = 0.8;
     };
+    redshift = {
+      enable = true;
+      temperature.day = 6500;
+      temperature.night = 2700;
+    };
+  };
+
+  programs.zsh.enable = true;
+
+  fonts = {
+    fontDir.enable = true;
+    enableGhostscriptFonts = true;
+    fonts = with pkgs; [
+      anonymousPro
+      dejavu_fonts
+      freefont_ttf
+      google-fonts
+      inconsolata
+      liberation_ttf
+      powerline-fonts
+      source-code-pro
+      terminus_font
+      ttf_bitstream_vera
+      ubuntu_font_family
+    ];
   };
 
 }
