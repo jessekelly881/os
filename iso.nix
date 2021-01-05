@@ -46,17 +46,21 @@
   };
 
   environment.systemPackages = with pkgs; [
-    # core tools
-    nodejs
-    git
-    vim
-    emacs
-    android-studio
+    # util
+    wget git vim emacs whois pandoc wine ffmpeg-full
+    texlive.combined.scheme-full
 
-    # user tools
-    qutebrowser
-    firefox
-    mpv-with-scripts # https://nixos.wiki/wiki/MPV
+    # ui
+    qutebrowser firefox mpv-with-scripts
+
+    # dev
+    go gnumake gcc clang cmake manpages ghc zlib
+    cargo ghc zlib nodejs
+
+    # python
+    (python3.withPackages(ps: with ps; [
+      ipython pillow numpy scipy pywal
+    ]))
 
   ];
 
