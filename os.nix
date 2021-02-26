@@ -2,9 +2,18 @@
 
 {
   # Whitelist for non "free" software.
-  nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
-    "android-studio-stable"
-  ];
+  nixpkgs.config = {
+    packageOverrides = pkgs: {
+      nur = import (builtins.fetchTarball "https://github.com/nix-community/NUR/archive/master.tar.gz") {
+        inherit pkgs;
+      };
+    };
+
+    allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+      "android-studio-stable"
+    ];
+
+  };
 
   imports = [ # Needed to build iso
     <nixpkgs/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix>
@@ -24,6 +33,7 @@
   };
 
   programs = {
+    firejail.enable = true;
     bash.enableCompletion = true;
     tmux = {
         enable = true;
@@ -45,21 +55,23 @@
     bluetooth.enable = true;
   };
 
+  environment.variables.EDITOR = "urxvt";
   environment.systemPackages = with pkgs; [
     # util
     wget git vim emacs whois pandoc wine ffmpeg-full
-    texlive.combined.scheme-full
+    texlive.combined.scheme-full haskellPackages.git-annex
+    rxvt_unicode yadm
 
     # ui
     qutebrowser firefox mpv-with-scripts
 
     # dev
     go gnumake gcc clang cmake manpages ghc zlib
-    cargo ghc zlib nodejs
+    cargo ghc zlib nodejs qemu
 
     # python
     (python3.withPackages(ps: with ps; [
-      ipython pillow numpy scipy pywal
+      ipython pillow numpy scipy pywal ranger
     ]))
 
   ];
@@ -73,6 +85,7 @@
     printing.enable = true;
     blueman.enable = true;
     upower.enable = true;
+    tor.client.enable = true;
     dbus = {
       enable = true;
       packages = [ pkgs.gnome3.dconf ];
